@@ -1,6 +1,7 @@
 from tensor import TensorShape
 from algorithm import vectorize, parallelize
 from memory import memset_zero
+from random import rand
 import math
 
 from types import BufferPtrFloat32, TensorF32, nelts
@@ -402,3 +403,26 @@ fn transformers(
 
     # Classifier into logits
     matmul(state.logits, state.x, weights.wcls)
+
+fn argmax(v: TensorF32) -> Int:
+    # return argmax of v
+    var max_i: Int = 0
+    var max_p: Float32 = v[0]
+    for i in range(v.dim(0)):
+        if v[i] > max_p:
+            max_i = i
+            max_p = v[i]
+    return max_i
+
+fn sample(prob: TensorF32) -> Int:
+    let n = prob.dim(0)
+    # Sample index from prob, they must sum to 1
+    # get random value within (min, max) float32 range
+    let r = rand[DType.float32](1)
+    var cdf: Float32 = 0.0
+    for i in range(n):
+        cdf += prob[i]
+        if r[0] < cdf:
+            return i
+    # Incase of rouding errors
+    return n - 1
