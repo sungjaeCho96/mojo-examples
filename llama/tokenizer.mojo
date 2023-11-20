@@ -1,7 +1,7 @@
-from common.types import PointerString, PointerStrings, BufferPtrFloat32
-from common.files import FileBuf
+from types import PointerString, PointerStrings, BufferPtrFloat32
+from files import FileBuf
 from sort import quicksort
-from common.common import read_val_int, read_val_str, read_val_float32, string_compare, wrap
+from common import read_val_int, read_val_str, read_val_float32, string_compare, wrap
 
 struct Tokenizer:
     var vocab: PointerStrings

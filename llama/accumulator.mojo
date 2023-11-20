@@ -1,6 +1,7 @@
 from algorithm import vectorize
 from memory import memset_zero, stack_allocation
-from common.types import BufferPtrFloat32, TensorF32, nelts
+from types import BufferPtrFloat32, TensorF32, nelts
+from tensorutils import TensorSlice
 
 import math
 
@@ -35,26 +36,3 @@ fn accum(inout a: TensorF32, b: TensorF32) -> None:
         a.simd_store[_nelts](j, a.simd_load[_nelts](j) + b.simd_load[_nelts](j))
     
     vectorize[nelts, _acc](size)
-    
-@always_inline
-fn rmsnorm(inout o: BufferPtrFloat32, x: BufferPtrFloat32, weight: BufferPtrFloat32, size: Int) -> None:
-    # Calculate sum of squares
-    var tmp = Accumulator[DType.float32, nelts]()
-
-    @parameter
-    fn _sum2[_nelts: Int](j: Int):
-        tmp.accumulate(x.offset(j).simd_load[_nelts](0) ** 2)
-
-    vectorize[nelts, _sum2](size)
-
-    var ss: Float32 = tmp.total()
-    ss = ss / size + 1e-5
-    ss = 1.0 / math.sqrt(ss)
-
-    # Normalize and scale
-    @parameter
-    fn _norm[_nelts: Int](j: Int):
-        let val = weight.simd_load[_nelts](j) * ss * x.simd_load[_nelts](j)
-        o.offset(j).simd_store[_nelts](0, val)
-
-    vectorize[nelts, _norm](size)

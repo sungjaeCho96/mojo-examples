@@ -18,11 +18,7 @@ import time
 
 # My Pacakges
 from accumulator import Accumulator
-from common.types import PointerString, BufferPtrType, BufferPtrFloat32, PointerStrings, TensorF32
-
-var workers = 0
-
-alias nelts = (4 * simdwidthof[DType.float32]())
+from types import PointerString, BufferPtrType, BufferPtrFloat32, PointerStrings, TensorF32
 
 """
 var : mutable

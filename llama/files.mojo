@@ -1,4 +1,4 @@
-from .types import BufferPtrType, BufferPtrFloat32
+from types import BufferPtrType, BufferPtrFloat32
 
 struct FileBuf:
     var data: BufferPtrType

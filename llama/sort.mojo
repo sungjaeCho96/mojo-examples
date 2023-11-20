@@ -1,5 +1,5 @@
-from common.types import PointerStrings
-from common.common import string_compare
+from types import PointerStrings
+from common import string_compare
 
 # Quicksort helper function to find the partition position
 fn partition(inout array: PointerStrings, inout indices: DynamicVector[Int], low: Int, high: Int) -> Int:

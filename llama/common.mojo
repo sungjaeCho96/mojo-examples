@@ -1,5 +1,5 @@
-from .types import PointerString
-from .files import FileBuf
+from types import PointerString
+from files import FileBuf
 
 fn read_val_int(inout buf: FileBuf) raises -> Int:
     # DTypePointer[DType.ui8](buf.data).bitcast[DType.ui8]()
