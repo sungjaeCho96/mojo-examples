@@ -255,7 +255,7 @@ fn rope_rotation_llama(
     parallelize[head_loop](config.n_heads, workers)
 
 @always_inline
-fn transformers(
+fn transformer(
     token: Int,
     pos: Int,
     config: Config,

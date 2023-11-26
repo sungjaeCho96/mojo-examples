@@ -1,5 +1,6 @@
 from types import PointerString
 from files import FileBuf
+import time
 
 fn read_val_int(inout buf: FileBuf) raises -> Int:
     # DTypePointer[DType.ui8](buf.data).bitcast[DType.ui8]()
@@ -25,38 +26,20 @@ fn read_val_str(inout buf: FileBuf, slen: Int) raises -> PointerString:
 
     return str
 
-fn str_to_ptr(s: String) -> PointerString:
-    let ret = PointerString.alloc(len(s) + 1);
-    for i in range(len(s)):
-        ret.store(i, ord(s[i]))
-    ret.store(len(s), 0)
-    return ret
+fn time_in_ms() -> Int:
+    # Returns time in milliseconds for benchmarking the model speed
+    return time.now() // 1_000_000
 
-fn string_compare(a: PointerString, b: PointerString) -> Int:
-    var index = 0
-    while a[index] != 0 and b[index] != 0:
-        if a[index] < b[index]:
-            return -1
-        if a[index] > b[index]:
-            return 1
-
-        index += 1
-
-    if a[index] != 0 and b[index] == 0:
-        return 1
-
-    if a[index] == 0 and b[index] != 0:
-        return -1
-
-    return 0
-
-fn wrap(token: PointerString) -> PointerString:
-    if string_compare(token, str_to_ptr("\\n")) == 0:
-        return str_to_ptr("<0x0A")
-    if string_compare(token, str_to_ptr("\\t")) == 0:
-        return str_to_ptr("<0x09>")
-    if string_compare(token, str_to_ptr("'")) == 0:
-        return str_to_ptr("<0x27>")
-    elif string_compare(token, str_to_ptr('"')) == 0:
-        return str_to_ptr("<0x22>")
-    return token
+fn print_usage():
+    print("Usage: mojo llama2.mojo <checkpoint> [options]")
+    print(
+        'Example: mojo llama2.mojo stories15M.bin -s 99 -n 256 -t 0.5 -i "Llama is an'
+        ' animal"'
+    )
+    print("Options:")
+    print("  -s <int>    random seed, default time.now()")
+    print("  -t <float>  temperature in [0,1.0], default 1.0")
+    print("  -n <int>    number of steps to run for, default 256. 0 = max_seq_len")
+    print("  -i <string> input prompt")
+    print("  -z          tokenizer path")
+    print("  -j          number of workers to use, default num_cores()")

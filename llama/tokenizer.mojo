@@ -1,7 +1,8 @@
 from types import PointerString, PointerStrings, BufferPtrFloat32
 from files import FileBuf
 from sort import quicksort
-from common import read_val_int, read_val_str, read_val_float32, string_compare, wrap
+from common import read_val_int, read_val_str, read_val_float32
+from stringex import wrap, string_compare, str_to_ptr, str_concat
 
 struct Tokenizer:
     var vocab: PointerStrings
@@ -72,3 +73,40 @@ struct Tokenizer:
                 right = mid - 1
 
         return -1
+
+fn bpe_encode(inout tokens: DynamicVector[Int], text: String, inout tok: Tokenizer):
+    for pos in range(len(text)):
+        let char = str_to_ptr(text[pos])
+        let id = tok.find(char)
+        if id == -1:
+            print("Not a good prompt token at pos", pos)
+            return
+        tokens.push_back(id)
+    
+    while True:
+        var best_score = Float32(-1e10)
+        var best_id = -1
+        var best_idx = -1
+
+        for i in range(len(tokens) - 1):
+            # Check if we can merge the pair (tokens[i], tokens[i+1])
+            let str = str_concat(tok.vocab[tokens[i]], tok.vocab[tokens[i + 1]])
+            let id = tok.find(str)
+            if id != - 1 and tok.vocab_scores.load(id) > best_score:
+                best_score = tok.vocab_scores.load(id)
+                best_id = id
+                best_idx = i
+        
+        if best_idx == -1:
+            # We couldn't find any more pairs to merge, so we're done
+            break
+
+        # Merge the consecutive pair (best_idx, best_idx + 1) into new token best_id
+        tokens[best_idx] = best_id
+        # Delete token at position best_id+1, shift the entire sequence back 1
+        var _tokens = DynamicVector[Int]()
+        for i in range(0, best_idx + 1):
+            _tokens.push_back(tokens[i])
+        for i in range(best_idx + 2, len(tokens)):
+            _tokens.push_back(tokens[i])
+        tokens = _tokens
